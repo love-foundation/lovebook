@@ -1,0 +1,35 @@
+# docker-compose.yml
+version: '3.0'
+services:
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: postgres
+    image: postgres
+
+  web:
+    env_file:
+      - ./.env
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=webpacker
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+  webpacker:
+    build: .
+    command: bin/webpack-dev-server #./bin/webpack-dev-server
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - '3035:3035'
+      - '8080:8080'
+    environment:
+      - NODE_ENV=development
+      - RAILS_ENV=development
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
