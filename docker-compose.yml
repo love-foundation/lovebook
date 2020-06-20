@@ -17,6 +17,7 @@ services:
     build: .
     volumes:
       - .:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -27,6 +28,7 @@ services:
     command: bin/webpack-dev-server #./bin/webpack-dev-server
     volumes:
       - .:/app
+      - /app/node_modules
     working_dir: /app
     ports:
       - '3035:3035'
