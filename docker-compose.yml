@@ -14,7 +14,7 @@ services:
       - WEBPACKER_DEV_SERVER_HOST=webpacker
     build: .
     volumes:
-      - .:/app
+      - ./:/app
       - /app/node_modules
     ports:
       - "3000:3000"
