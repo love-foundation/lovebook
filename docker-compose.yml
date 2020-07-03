@@ -6,8 +6,6 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     image: postgres
-    ports:
-      - "5432:5432"
 
   web:
     env_file:

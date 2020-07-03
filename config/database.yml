@@ -19,7 +19,7 @@ default: &default
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  host: localhost # From docker-compose service's name
+  host: postgres # From docker-compose service's name
   username: postgres
   password: postgres # From web's service
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
