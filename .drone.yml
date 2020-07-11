@@ -33,6 +33,7 @@ steps:
     commands:
       - sudo rm config/database.yml
       - sudo mv config/database.yml.ci config/database.yml
+      - sudo gem install bundler:2.1.4
       - sudo -E bundle install --path /bundle --without production,development
       - sudo -E bundle exec rails db:create RAILS_ENV=test
       - sudo -E bundle exec rails db:schema:load RAILS_ENV=test
@@ -43,6 +44,12 @@ steps:
       POSTGRES_PASSWORD: postgres
       DATABASE_HOST: database
       PARALLEL_TEST_PROCESSORS: 15
+
+  - name: rebuild-cache
+    <<: *cache-common
+    settings:
+      <<: *cache-settings
+      rebuild: true
 
 services:
   - name: database
