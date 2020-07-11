@@ -43,6 +43,7 @@ steps:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       DATABASE_HOST: database
+      POSTGRES_DB: autostat_test
       PARALLEL_TEST_PROCESSORS: 15
 
   - name: rebuild-cache
