@@ -1,7 +1,33 @@
+---
 kind: pipeline
+type: docker
 name: default
 
+cache-common: &cache-common
+  image: meltwater/drone-cache
+  environment:
+    PLUGIN_ACCESS_KEY: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
+    PLUGIN_SECRET_KEY:
+      from_secret: minio
+  pull: true
+
+cache-settings: &cache-settings
+  bucket: cache
+  region: main
+  path_style: true
+  endpoint: https://cache.love-foundation.org
+  mount:
+    - 'node_modules'
+    - 'bundle'
+
 steps:
+  - name: restore-cache
+    <<: *cache-common
+    settings:
+      <<: *cache-settings
+      restore: true
+
+
   - name: build
     image: circleci/ruby:2.6.5-node
     commands:
@@ -11,11 +37,6 @@ steps:
       - sudo -E bundle exec rails db:create RAILS_ENV=test
       - sudo -E bundle exec rails db:schema:load RAILS_ENV=test
       - sudo -E bundle exec rspec spec
-    volumes:
-      - name: gem-cache
-        path: /bundle
-      - name: tmp
-        path: /drone/src/tmp
     environment:
       RAILS_ENV: test
       POSTGRES_USER: postgres
@@ -30,10 +51,3 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: autostat_test
-
-volumes:
-  - name: gem-cache
-    host:
-      path: /tmp/cache
-  - name: tmp
-    temp: {}
