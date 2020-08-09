@@ -3,9 +3,13 @@ version: '3.0'
 services:
 
   postgres:
+    env_file:
+      - ./.env
     environment:
       POSTGRES_PASSWORD: postgres
     image: postgres
+    ports:
+      - "5432:5432"
 
   web:
     env_file:
@@ -14,7 +18,7 @@ services:
       - WEBPACKER_DEV_SERVER_HOST=webpacker
     build: .
     volumes:
-      - .:/app
+      - ./:/app
       - /app/node_modules
     ports:
       - "3000:3000"
