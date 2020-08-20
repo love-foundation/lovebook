@@ -2,7 +2,7 @@
 name: Issue/Bug report
 about: Reporting a problem
 labels: bug
-projects: love-foundation/1
+projects: 1
 
 
 ---
