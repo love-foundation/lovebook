@@ -34,9 +34,12 @@ steps:
       - sudo rm config/database.yml
       - sudo mv config/database.yml.ci config/database.yml
       - sudo gem install bundler:2.1.4
-      - sudo -E bundle install --path /bundle --without production,development
+      - sudo -E bundle config set path '/bundle'
+      - sudo -E bundle config set without 'production,development'
+      - sudo -E bundle install
       - sudo -E bundle exec rails db:create RAILS_ENV=test
       - sudo -E bundle exec rails db:schema:load RAILS_ENV=test
+      - sudo -E bin/rails assets:precompile
       - sudo -E bundle exec rspec spec
     environment:
       RAILS_ENV: test
