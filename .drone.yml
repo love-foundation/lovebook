@@ -5,16 +5,16 @@ name: default
 
 steps:
 
-  - name: restore
-    image: plugins/s3-cache
-    settings:
-      pull: true
-      access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
-      secret_key:
-        from_secret: minio
-      endpoint: https://cache.love-foundation.org/
-      root: https://cache.love-foundation.org/minio/cacherails
-      restore: true
+  # - name: restore
+  #   image: plugins/s3-cache
+  #   settings:
+  #     pull: true
+  #     access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
+  #     secret_key:
+  #       from_secret: minio
+  #     endpoint: https://cache.love-foundation.org/
+  #     root: https://cache.love-foundation.org/minio/cacherails
+  #     restore: true
 
 
   - name: test
@@ -38,32 +38,32 @@ steps:
       POSTGRES_DB: autostat_test
       PARALLEL_TEST_PROCESSORS: 15
 
-  - name: rebuild
-    image: plugins/s3-cache
-    settings:
-      pull: true
-      endpoint: https://cache.love-foundation.org
-      access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
-      secret_key:
-        from_secret: minio
-      rebuild: true
-      root: cacherails
-      mount:
-        - node_modules
-        - bundle
-      when:
-        event: push
+  # - name: rebuild
+  #   image: plugins/s3-cache
+  #   settings:
+  #     pull: true
+  #     endpoint: https://cache.love-foundation.org
+  #     access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
+  #     secret_key:
+  #       from_secret: minio
+  #     rebuild: true
+  #     root: cacherails
+  #     mount:
+  #       - node_modules
+  #       - bundle
+  #     when:
+  #       event: push
 
-  - name: flush
-    image: plugins/s3-cache:1
-    settings:
-      pull: true
-      endpoint: https://cache.love-foundation.org
-      access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
-      secret_key:
-        from_secret: minio
-      flush: true
-      flush_age: 14
+  # - name: flush
+  #   image: plugins/s3-cache:1
+  #   settings:
+  #     pull: true
+  #     endpoint: https://cache.love-foundation.org
+  #     access_key: 3R3u3XVKmNcPWCpzqV6R9vgtdgw6tk3Q
+  #     secret_key:
+  #       from_secret: minio
+  #     flush: true
+  #     flush_age: 14
 
 services:
   - name: database
