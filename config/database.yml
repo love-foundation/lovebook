@@ -60,7 +60,12 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: lovebook_test
+  adapter: postgresql
+  encoding: utf8
+  host: <%= ENV['DATABASE_HOST'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  database: <%= ENV['POSTGRES_DB'] %>
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -83,6 +88,6 @@ test:
 #
 production:
   <<: *default
-  database: lovebook_production
-  username: lovebook
+  username: <%= ENV['POSTGRES_USER'] %>
+  database: <%= ENV['POSTGRES_DB'] %>
   password: <%= ENV['LOVEBOOK_DATABASE_PASSWORD'] %>

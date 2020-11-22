@@ -37,3 +37,6 @@ yarn-debug.log*
 
 
 /app/views/devise/
+
+.env
+
