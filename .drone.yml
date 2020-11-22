@@ -25,9 +25,6 @@ steps:
 kind: pipeline
 name: build-docker-image
 
-depends_on:
- - notify-pipeline-start
-
 steps:
   - name: build-docker-image-branch
     image: plugins/docker
@@ -100,3 +97,49 @@ steps:
     when:
       event:
         - tag
+
+depends_on:
+ - notify-pipeline-start
+
+
+---
+kind: pipeline
+name: rspec
+
+trigger:
+ event:
+   exclude:
+     - tag
+
+steps:
+  - name: rspec
+    environment:
+      PARALLEL_TEST_PROCESSORS: 15
+      RAILS_ENV: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+      DATABASE_HOST: postgres
+    image: lovefoundation/lovebook:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+    commands:
+      - echo "Running on agent $DRONE_MACHINE"
+      - cp -f config/database.ci.yml config/database.yml
+      - bundle exec rails db:create RAILS_ENV=test
+      - bundle exec rails db:schema:load RAILS_ENV=test
+      - bin/rails assets:precompile
+      - bundle exec rspec spec
+
+services:
+  - name: redis
+    image: redis
+  - name: postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+
+depends_on:
+  - build-docker-image
+
+image_pull_secrets:
+  - dockerconfigjson
