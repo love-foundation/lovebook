@@ -1,0 +1,30 @@
+# docker-compose.yml
+version: '3.7'
+
+networks:
+    proxy:
+      external: true
+
+services:
+
+  postgres:
+     env_file:
+      - ./.env
+    image: postgres
+
+  web:
+    env_file:
+      - ./.env
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 3000
+    depends_on:
+      - postgres
+    labels:
+            - "traefik.enable=true"
+            - "traefik.port=80"
+            - "traefik.docker.network=proxy"
+            - "traefik.backend=lovebook"
+            - "traefik.frontend.rule=Host:lovebook.love-foundation.org"

@@ -1,6 +1,5 @@
 ---
 kind: pipeline
-type: docker
 name: default
 
 steps:
@@ -17,26 +16,26 @@ steps:
   #     restore: true
 
 
-  - name: test
-    image: circleci/ruby:2.6.5-node
-    commands:
-      - sudo rm config/database.yml
-      - sudo mv config/database.yml.ci config/database.yml
-      - sudo gem install bundler:2.1.4
-      - sudo -E bundle config set path '/bundle'
-      - sudo -E bundle config set without 'production,development'
-      - sudo -E bundle install
-      - sudo -E bundle exec rails db:create RAILS_ENV=test
-      - sudo -E bundle exec rails db:schema:load RAILS_ENV=test
-      - sudo -E bin/rails assets:precompile
-      - sudo -E bundle exec rspec spec
-    environment:
-      RAILS_ENV: test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DATABASE_HOST: database
-      POSTGRES_DB: autostat_test
-      PARALLEL_TEST_PROCESSORS: 15
+  # - name: test
+  #   image: circleci/ruby:2.6.5-node
+  #   commands:
+  #     - sudo rm config/database.yml
+  #     - sudo mv config/database.yml.ci config/database.yml
+  #     - sudo gem install bundler:2.1.4
+  #     - sudo -E bundle config set path '/bundle'
+  #     - sudo -E bundle config set without 'production,development'
+  #     - sudo -E bundle install
+  #     - sudo -E bundle exec rails db:create RAILS_ENV=test
+  #     - sudo -E bundle exec rails db:schema:load RAILS_ENV=test
+  #     - sudo -E bin/rails assets:precompile
+  #     - sudo -E bundle exec rspec spec
+  #   environment:
+  #     RAILS_ENV: test
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     DATABASE_HOST: database
+  #     POSTGRES_DB: autostat_test
+  #     PARALLEL_TEST_PROCESSORS: 15
 
   # - name: rebuild
   #   image: plugins/s3-cache
@@ -64,6 +63,27 @@ steps:
   #       from_secret: minio
   #     flush: true
   #     flush_age: 14
+
+  - name: deploy staging
+    image: cupcakearmy/drone-deploy
+    pull: always
+    environment:
+      PLUGIN_KEY:
+        from_secret: key
+    settings:
+      host: love-foundation.org
+      user: root
+      key:
+        from_secret: key
+      port: 1312
+      target: /srv/lovebook
+      sources:
+        - ./
+        - ./docker-compose.prod.yml
+      commands:
+        - mv docker-compose.staging.yml docker-compose.yml
+        - docker-compose up -d --build
+
 
 services:
   - name: database
