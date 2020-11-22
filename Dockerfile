@@ -10,11 +10,10 @@ RUN mkdir -p /app
 RUN mkdir -p /usr/local/nvm
 WORKDIR /app
 
-RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 RUN node -v
-RUN npm -v
 
 # Copy the Gemfile as well as the Gemfile.lock and install
 # the RubyGems. This is a separate step so the dependencies
