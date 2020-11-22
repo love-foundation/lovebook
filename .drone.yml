@@ -25,16 +25,19 @@ steps:
 kind: pipeline
 name: build-docker-image
 
+depends_on:
+ - notify-pipeline-start
+
 steps:
   - name: build-docker-image-branch
     image: plugins/docker
     settings:
-      repo: ${DRONE_REPO,,}
+      repo: lovefoundation/lovebook
       tags:
         - ${DRONE_SOURCE_BRANCH/\//-}
         - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       cache_from:
-        - ${DRONE_REPO,,}:${DRONE_SOURCE_BRANCH/\//-}
+        - lovefoundation/lovebook:${DRONE_SOURCE_BRANCH/\//-}
       username:
         from_secret: DOCKER_USERNAME
       password:
@@ -43,3 +46,57 @@ steps:
       event:
         exclude:
           - tag
+
+  - name: Fetch-full-git-repo
+    image: docker:git
+    commands:
+      - git fetch --all
+    when:
+      event:
+       - tag
+
+  - name: check-master-commit
+    image: uala/drone-rancher-deploy
+    settings:
+      enforce_branch_for_tag: master
+      action: tag_check
+    when:
+      event:
+       - tag
+
+  - name: check-master-image
+    image: ellerbrock/alpine-bash-curl-ssl
+    commands:
+      - echo "Running on agent $DRONE_MACHINE"
+      - URL=https://registry.hub.docker.com/v1/repositories/$REPO/tags/$MASTER_TAG
+      - CURL_RESPONSE=$(curl --silent -u $DOCKER_USER:$DOCKER_PASS $URL)
+      - echo -e "\e[34mCheck if master image $REPO:$MASTER_TAG exists..."
+      - test "$CURL_RESPONSE" == 'Tag not found' && (echo -e "\e[31mMaster image does not exists\e[0m"; exit 1)
+      - echo -e "\e[32mMaster image OK\e[0m"
+      - exit 0
+    environment:
+      REPO: lovefoundation/lovebook
+      MASTER_TAG: master-${DRONE_COMMIT_SHA:0:8}
+      DOCKER_USER:
+        from_secret: DOCKER_USERNAME
+      DOCKER_PASS:
+        from_secret: DOCKER_PASSWORD
+    when:
+      event:
+       - tag
+
+  - name: build-docker-image-tag
+    image: plugins/docker
+    settings:
+      repo: lovefoundation/lovebook
+      tags:
+        - ${DRONE_TAG/\//-}
+      cache_from:
+        - lovefoundation/lovebook:master-${DRONE_COMMIT_SHA:0:8}
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+    when:
+      event:
+        - tag
