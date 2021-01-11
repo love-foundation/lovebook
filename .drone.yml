@@ -165,17 +165,22 @@ name: deploy staging
 steps:
   - name: build-docker-image-staging
     image: plugins/docker
+    environment:
+      railsmasterkey:
+        from_secret: RAILS_MASTER_KEY
     settings:
       repo: lovefoundation/lovebook
       tags:
-        - ${DRONE_SOURCE_BRANCH/\//-}
+        - staging
         - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       cache_from:
-        - lovefoundation/lovebook:${DRONE_SOURCE_BRANCH/\//-}
+        - lovefoundation/lovebook:staging
       username:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+      build_args_from_env:
+        - railsmasterkey
 
   - name: deploy-staging
     image: cupcakearmy/drone-deploy
@@ -192,6 +197,7 @@ steps:
         - ./
       commands:
         - mv docker-compose.staging.yml docker-compose.yml
+        - docker-compose pull web
         - docker-compose up -d --build
 
 depends_on:

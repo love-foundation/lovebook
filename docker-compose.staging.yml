@@ -18,7 +18,7 @@ services:
       - ./data/db:/var/lib/postgresql/data
 
   web:
-    image: lovefoundation/lovebook:mn-drone-fresh
+    image: lovefoundation/lovebook:staging
     restart: unless-stopped
     volumes:
       - ./data/app:/app
