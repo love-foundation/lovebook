@@ -1,5 +1,5 @@
 # Dockerfile# Use ruby image to build our own image
-FROM ruby:2.7
+FROM ruby:2.7.2
 
 # replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -39,4 +39,5 @@ EXPOSE 3000
 # tell the Rails dev server to bind to all interfaces by
 # default.
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
 RUN RAILS_ENV=production bundle exec rake assets:precompile

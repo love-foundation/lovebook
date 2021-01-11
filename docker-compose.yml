@@ -3,8 +3,6 @@ version: '3.0'
 services:
 
   postgres:
-    env_file:
-      - ./.env
     environment:
       POSTGRES_PASSWORD: postgres
     image: postgres
@@ -12,8 +10,6 @@ services:
       - "5432:5432"
 
   web:
-    env_file:
-      - ./.env
     environment:
       - WEBPACKER_DEV_SERVER_HOST=webpacker
     build: .
