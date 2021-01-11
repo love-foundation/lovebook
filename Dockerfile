@@ -1,5 +1,5 @@
 # Dockerfile# Use ruby image to build our own image
-FROM ruby:2.6.5
+FROM ruby:2.7
 
 # replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
