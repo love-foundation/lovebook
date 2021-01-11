@@ -12,7 +12,10 @@ services:
   web:
     environment:
       - WEBPACKER_DEV_SERVER_HOST=webpacker
-    build: .
+    build:
+      context: .
+      args:
+        precompileassets: 'not'
     volumes:
       - ./:/app
       - /app/node_modules

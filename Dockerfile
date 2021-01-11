@@ -1,4 +1,6 @@
 # Dockerfile# Use ruby image to build our own image
+ARG precompileassets
+
 FROM ruby:2.7.2
 
 # replace shell with bash so we can source files
@@ -40,4 +42,6 @@ EXPOSE 3000
 # default.
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
-RUN RAILS_ENV=production bundle exec rake assets:precompile
+RUN scripts/potential_asset_precompile.sh $precompileassets
+
+

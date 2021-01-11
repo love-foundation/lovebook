@@ -14,10 +14,10 @@
     "postcss": "^8.2.4",
     "tailwindcss": "^2.0.2",
     "turbolinks": "^5.2.0",
-    "webpack": "^4.43.0"
+    "webpack": "^5.12.3"
   },
   "version": "0.1.0",
   "devDependencies": {
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.1"
   }
 }
