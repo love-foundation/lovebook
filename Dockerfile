@@ -1,16 +1,19 @@
+FROM ruby:2.7.2
+
 # Dockerfile# Use ruby image to build our own image
-FROM ruby:2.6.5
+ARG precompileassets
+ARG railsmasterkey
 
 # replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs ghostscript
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev ghostscript
 
 RUN mkdir -p /app
 RUN mkdir -p /usr/local/nvm
 WORKDIR /app
 
-RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 RUN node -v
@@ -25,11 +28,11 @@ RUN gem install bundler -v 2.1.4
 RUN gem install foreman -v 0.85.0
 RUN bundle install --verbose --jobs 20 --retry 5
 
-RUN npm install -g yarn
-RUN yarn install --check-files
-
 # Copy the main application.
 COPY . ./
+
+RUN npm install -g yarn
+RUN yarn install --check-files
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
@@ -39,3 +42,6 @@ EXPOSE 3000
 # tell the Rails dev server to bind to all interfaces by
 # default.
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
+RUN scripts/set_master_key.sh ${railsmasterkey}
+RUN scripts/potential_asset_precompile.sh ${precompileassets}

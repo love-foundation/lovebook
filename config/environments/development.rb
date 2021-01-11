@@ -9,9 +9,6 @@ Rails.application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-   # Disable yarn integrity
-   config.webpacker.check_yarn_integrity = false
-
   # Show full error reports.
   config.consider_all_requests_local = true
 
@@ -39,9 +36,6 @@ Rails.application.configure do
 
   config.action_mailer.perform_caching = false
 
-  # Adding a default url for action_mailer so devise works
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
-
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
@@ -64,5 +58,5 @@ Rails.application.configure do
 
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
-  config.file_watcher = ActiveSupport::FileUpdateChecker
+  config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 end

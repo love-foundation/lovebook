@@ -37,3 +37,8 @@ yarn-debug.log*
 
 
 /app/views/devise/
+
+.env
+
+
+/config/credentials/production.key

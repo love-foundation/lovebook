@@ -1,0 +1,204 @@
+---
+kind: pipeline
+name: notify-pipeline-start
+
+steps:
+  - name: slack
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack_webhook
+      link_names: true
+      template: >
+        {{#if build.pull }}
+          *Build started*: {{ repo.owner }}/{{ repo.name }} - <https://github.com/{{ repo.owner }}/{{ repo.name }}/pull/{{ build.pull }}|Pull Request #{{ build.pull }}>
+        {{else}}
+          *Build started: {{ repo.owner }}/{{ repo.name }} - Build #{{ build.number }}* (type: `{{ build.event }}`)
+        {{/if}}
+        Commit: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}>
+        Branch: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commits/{{ build.branch }}|{{ build.branch }}>
+        Author: {{ build.author }}
+        <{{ build.link }}|Visit build page ↗>
+
+
+---
+kind: pipeline
+name: build-docker-image
+
+steps:
+  - name: build-docker-image-branch
+    image: plugins/docker
+    environment:
+      railsmasterkey:
+        from_secret: RAILS_MASTER_KEY
+    settings:
+      repo: lovefoundation/lovebook
+      tags:
+        - ${DRONE_SOURCE_BRANCH/\//-}
+        - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      cache_from:
+        - lovefoundation/lovebook:${DRONE_SOURCE_BRANCH/\//-}
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+      build_args_from_env:
+        - railsmasterkey
+    when:
+      event:
+        exclude:
+          - tag
+
+  - name: Fetch-full-git-repo
+    image: docker:git
+    commands:
+      - git fetch --all
+    when:
+      event:
+       - tag
+
+  - name: check-master-commit
+    image: uala/drone-rancher-deploy
+    settings:
+      enforce_branch_for_tag: master
+      action: tag_check
+    when:
+      event:
+       - tag
+
+  - name: check-master-image
+    image: ellerbrock/alpine-bash-curl-ssl
+    commands:
+      - echo "Running on agent $DRONE_MACHINE"
+      - URL=https://registry.hub.docker.com/v1/repositories/$REPO/tags/$MASTER_TAG
+      - CURL_RESPONSE=$(curl --silent -u $DOCKER_USER:$DOCKER_PASS $URL)
+      - echo -e "\e[34mCheck if master image $REPO:$MASTER_TAG exists..."
+      - test "$CURL_RESPONSE" == 'Tag not found' && (echo -e "\e[31mMaster image does not exists\e[0m"; exit 1)
+      - echo -e "\e[32mMaster image OK\e[0m"
+      - exit 0
+    environment:
+      REPO: lovefoundation/lovebook
+      MASTER_TAG: master-${DRONE_COMMIT_SHA:0:8}
+      DOCKER_USER:
+        from_secret: DOCKER_USERNAME
+      DOCKER_PASS:
+        from_secret: DOCKER_PASSWORD
+    when:
+      event:
+       - tag
+
+  - name: build-docker-image-tag
+    image: plugins/docker
+    environment:
+      RAILS_MASTER_KEY:
+        from_secret: RAILS_MASTER_KEY
+    settings:
+      repo: lovefoundation/lovebook
+      tags:
+        - ${DRONE_TAG/\//-}
+      cache_from:
+        - lovefoundation/lovebook:master-${DRONE_COMMIT_SHA:0:8}
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+    when:
+      event:
+        - tag
+
+depends_on:
+ - notify-pipeline-start
+
+
+---
+kind: pipeline
+name: run-tests
+
+trigger:
+ event:
+   exclude:
+     - tag
+
+steps:
+  - name: rspec
+    environment:
+      PARALLEL_TEST_PROCESSORS: 15
+      RAILS_ENV: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+      DATABASE_HOST: postgres
+    image: lovefoundation/lovebook:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+    commands:
+      - echo "Running on agent $DRONE_MACHINE"
+      - bundle exec rails db:create RAILS_ENV=test
+      - bundle exec rails db:schema:load RAILS_ENV=test
+      - bundle exec rails assets:precompile
+      - bundle exec rspec spec
+
+services:
+  - name: redis
+    image: redis
+  - name: postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+
+depends_on:
+  - build-docker-image
+
+image_pull_secrets:
+  - dockerconfigjson
+
+
+---
+kind: pipeline
+name: deploy staging
+
+# Always run this for now until we have proper staging
+# trigger:
+#  branch:
+#    exclude:
+#      - master
+
+steps:
+  - name: build-docker-image-staging
+    image: plugins/docker
+    environment:
+      railsmasterkey:
+        from_secret: RAILS_MASTER_KEY
+    settings:
+      repo: lovefoundation/lovebook
+      tags:
+        - staging
+        - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      cache_from:
+        - lovefoundation/lovebook:staging
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+      build_args_from_env:
+        - railsmasterkey
+
+  - name: deploy-staging
+    image: cupcakearmy/drone-deploy
+    pull: always
+    environment:
+      PLUGIN_KEY:
+        from_secret: key
+    settings:
+      host: love-foundation.org
+      user: root
+      port: 1312
+      target: /srv/lovebook
+      sources:
+        - ./
+      commands:
+        - mv docker-compose.staging.yml docker-compose.yml
+        - docker-compose pull web
+        - docker-compose up -d --build
+
+depends_on:
+  - run-tests

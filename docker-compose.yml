@@ -3,39 +3,43 @@ version: '3.0'
 services:
 
   postgres:
-    env_file:
-      - ./.env
     environment:
       POSTGRES_PASSWORD: postgres
     image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - 5432:5432
 
   web:
-    env_file:
-      - ./.env
     environment:
       - WEBPACKER_DEV_SERVER_HOST=webpacker
-    build: .
+    build:
+      context: .
+      args:
+        precompileassets: not
     volumes:
       - ./:/app
       - /app/node_modules
     ports:
-      - "3000:3000"
+      - 3000:3000
     depends_on:
       - postgres
+      - webpacker
 
   webpacker:
-    build: .
-    command: bin/webpack-dev-server #./bin/webpack-dev-server
+    build:
+      context: .
+      args:
+        precompileassets: not
+    command: ./bin/webpack-dev-server #./bin/webpack-dev-server
     volumes:
       - .:/app
       - /app/node_modules
-    working_dir: /app
     ports:
-      - '3035:3035'
-      - '8080:8080'
+      - 3035:3035
     environment:
       - NODE_ENV=development
       - RAILS_ENV=development
       - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+      - WEBPACKER_DEV_SERVER_PORT=3035
