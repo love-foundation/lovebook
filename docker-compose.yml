@@ -15,7 +15,7 @@ services:
     build:
       context: .
       args:
-        precompileassets: 'not'
+        precompileassets: not
     volumes:
       - ./:/app
       - /app/node_modules
@@ -25,8 +25,11 @@ services:
       - postgres
 
   webpacker:
-    build: .
-    command: bin/webpack-dev-server #./bin/webpack-dev-server
+    build:
+      context: .
+      args:
+        precompileassets: not
+    command: ./bin/webpack-dev-server #./bin/webpack-dev-server
     volumes:
       - .:/app
       - /app/node_modules

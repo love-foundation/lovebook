@@ -28,6 +28,9 @@ name: build-docker-image
 steps:
   - name: build-docker-image-branch
     image: plugins/docker
+    environment:
+      railsmasterkey:
+        from_secret: RAILS_MASTER_KEY
     settings:
       repo: lovefoundation/lovebook
       tags:
@@ -39,6 +42,8 @@ steps:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+      build_args_from_env:
+        - railsmasterkey
     when:
       event:
         exclude:
@@ -84,6 +89,9 @@ steps:
 
   - name: build-docker-image-tag
     image: plugins/docker
+    environment:
+      RAILS_MASTER_KEY:
+        from_secret: RAILS_MASTER_KEY
     settings:
       repo: lovefoundation/lovebook
       tags:
@@ -125,6 +133,7 @@ steps:
       - echo "Running on agent $DRONE_MACHINE"
       - bundle exec rails db:create RAILS_ENV=test
       - bundle exec rails db:schema:load RAILS_ENV=test
+      - bundle exec rails assets:precompile
       - bundle exec rspec spec
 
 services:
