@@ -27,7 +27,9 @@
   },
   "version": "0.1.0",
   "devDependencies": {
+    "@prettier/plugin-ruby": "^1.5.2",
     "@webpack-cli/serve": "1.2.0",
+    "prettier": "^2.2.1",
     "webpack-dev-server": "^3.11.1"
   },
   "babel": {
