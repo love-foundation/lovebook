@@ -34,6 +34,9 @@ COPY . ./
 RUN npm install -g yarn
 RUN yarn install --check-files
 
+RUN scripts/set_master_key.sh ${railsmasterkey}
+RUN scripts/potential_asset_precompile.sh ${precompileassets}
+
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 3000
@@ -43,5 +46,4 @@ EXPOSE 3000
 # default.
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
-RUN scripts/set_master_key.sh ${railsmasterkey}
-RUN scripts/potential_asset_precompile.sh ${precompileassets}
+

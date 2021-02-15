@@ -182,23 +182,23 @@ steps:
       build_args_from_env:
         - railsmasterkey
 
-  - name: deploy-staging
-    image: cupcakearmy/drone-deploy
-    pull: always
-    environment:
-      PLUGIN_KEY:
-        from_secret: key
-    settings:
-      host: love-foundation.org
-      user: root
-      port: 1312
-      target: /srv/lovebook
-      sources:
-        - ./
-      commands:
-        - mv docker-compose.staging.yml docker-compose.yml
-        - docker-compose pull web
-        - docker-compose up -d --build
+    - name: deploy-staging
+      image: cupcakearmy/drone-deploy
+      pull: always
+      environment:
+        PLUGIN_KEY:
+          from_secret: key
+      settings:
+        host: love-foundation.org
+        user: root
+        port: 1312
+        target: /srv/lovebook
+        sources:
+          - ./
+        commands:
+          - mv docker-compose.staging.yml docker-compose.yml
+          - docker-compose pull
+          - docker-compose up -d --build
 
 depends_on:
   - run-tests
