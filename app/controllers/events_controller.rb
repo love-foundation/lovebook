@@ -20,7 +20,14 @@ class EventsController < ApplicationController
     @event = Event.find(params[:id])
   end
 
+  def update
+    @event = Event.find(params[:id])
+    @event.update(events_params)
+    redirect_to @event
+  end
+
   def edit
+    @event = Event.find(params[:id])
   end
 
   def destroy
