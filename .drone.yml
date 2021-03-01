@@ -133,6 +133,7 @@ steps:
       - echo "Running on agent $DRONE_MACHINE"
       - bundle exec rails db:create RAILS_ENV=test
       - bundle exec rails db:schema:load RAILS_ENV=test
+      - bundle exec rails db:migrate RAILS_ENV=test
       - bundle exec rails assets:precompile
       - bundle exec rspec spec
 
@@ -198,6 +199,7 @@ steps:
       commands:
         - mv docker-compose.staging.yml docker-compose.yml
         - docker-compose pull
+        - docker-compose exec web bin/rails db:migrate
         - docker-compose up -d --build
 
 depends_on:
