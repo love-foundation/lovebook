@@ -3,4 +3,5 @@ class Hub < ApplicationRecord
   validates :country, presence: true
 
   has_many :users
+  has_many :events
 end
