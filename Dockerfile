@@ -1,20 +1,20 @@
-FROM ruby:2.7.2
+FROM ruby:2.7.2-alpine3.13
 
 # Dockerfile# Use ruby image to build our own image
 ARG precompileassets
 ARG railsmasterkey
 
-# replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev ghostscript
+RUN apk add --no-cache --update build-base \
+    linux-headers \
+    git \
+    postgresql-dev \
+    tzdata \
+    nodejs \
+    npm \
+    ghostscript
 
 RUN mkdir -p /app
-RUN mkdir -p /usr/local/nvm
 WORKDIR /app
-
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get install -y nodejs
 
 RUN node -v
 RUN npm -v

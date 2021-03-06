@@ -203,6 +203,7 @@ steps:
         - mv docker-compose.staging.yml docker-compose.yml
         - docker-compose pull
         - docker-compose exec web bin/rails db:reset
+        - docker-compose exec web bin/rails db:migrate
         - docker-compose up --build -d
 
 depends_on:

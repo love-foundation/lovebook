@@ -20,8 +20,6 @@ services:
   web:
     image: lovefoundation/lovebook:staging
     restart: unless-stopped
-    volumes:
-      - ./data/app:/app
     env_file:
       - .env
     ports:
