@@ -18,3 +18,12 @@ hubs =
       { city: 'Cape Town', country: 'South Africa' },
     ],
   )
+
+events =
+    Event.create([
+      {name: 'Awesome Party at KitKat', location: 'Kitkat', date: Time.now, hub: Hub.first},
+      {name: 'Awesome Party at Berghain', location: 'Berghain', date: Time.now, hub: Hub.second},
+      {name: 'Awesome Party at Mensch Meier', location: 'Mensch Meier', date: Time.now, hub: Hub.last}
+    ])
+
+users = User.create([email: "admin@love-foundation.org", password: "all1needislove", hub: Hub.first])
