@@ -18,6 +18,7 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.find(params[:id])
+    @expenses = @event.expenses
   end
 
   def update
@@ -37,7 +38,8 @@ class EventsController < ApplicationController
   end
 
   private
-    def events_params
-      params.require(:event).permit(:name, :location, :date, :hub_id)
-    end
+
+  def events_params
+    params.require(:event).permit(:name, :location, :date, :hub_id)
+  end
 end
