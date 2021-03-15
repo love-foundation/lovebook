@@ -38,6 +38,9 @@ yarn-debug.log*
 
 /app/views/devise/
 
+#Ignore postgres docker folder
+/data/db
+
 .env
 
 
