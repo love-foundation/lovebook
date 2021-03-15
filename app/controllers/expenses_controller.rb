@@ -10,20 +10,16 @@ class ExpensesController < ApplicationController
   def create
     @expense = Expense.new(expense_params)
     if @expense.save
-      redirect_to @expense
+      redirect_to action: 'index'
     else
       render :new
     end
   end
 
-  def show
-    @expense = Expense.find(params[:id])
-  end
-
   def update
     @expense = Expense.find(params[:id])
     @expense.update(expense_params)
-    redirect_to @expense
+    redirect_to action: 'index'
   end
 
   def edit
@@ -33,7 +29,7 @@ class ExpensesController < ApplicationController
   def destroy
     @expense = Expense.find(params[:id])
     @expense.destroy
-    redirect_to expense_url
+    redirect_to action: 'index'
   end
 
   private
