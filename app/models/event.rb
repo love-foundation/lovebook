@@ -4,4 +4,6 @@ class Event < ApplicationRecord
     validates :date, presence: true
 
     belongs_to :hub
+
+    has_many :expenses
 end
