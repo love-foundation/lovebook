@@ -24,7 +24,7 @@ RUN npm -v
 # will be cached unless changes to one of those two files
 # are made.
 COPY Gemfile Gemfile.lock package.json yarn.lock ./
-RUN gem install bundler -v 2.1.4
+RUN gem install bundler -v 2.2.19
 RUN gem install foreman -v 0.85.0
 RUN bundle install --verbose --jobs 20 --retry 5
 
